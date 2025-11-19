@@ -1,0 +1,57 @@
+version: "3"
+
+vars:
+  SRC: .
+
+tasks:
+
+  # ===== Ruff =====
+  ruff-check:
+    desc: "Ruff check"
+    cmds:
+      - "poetry run ruff check {{.SRC}}"
+
+  ruff-fix:
+    desc: "Ruff fix (safe)"
+    cmds:
+      - "poetry run ruff check {{.SRC}} --fix"
+
+  ruff-fix-all:
+    desc: "Ruff fix (unsafe)"
+    cmds:
+      - "poetry run ruff check {{.SRC}} --fix --unsafe-fixes"
+
+  ruff-format:
+    desc: "Ruff format"
+    cmds:
+      - "poetry run ruff format {{.SRC}}"
+
+  ruff-format-check:
+    desc: "Ruff format --check"
+    cmds:
+      - "poetry run ruff format {{.SRC}} --check"
+
+  ruff-clean:
+    desc: "Remove .ruff_cache"
+    cmds:
+      - "rm -rf .ruff_cache"
+
+  lint:
+    desc: "Ruff fix + format"
+    deps: [ruff-fix, ruff-format]
+
+# ===== Git commit with Ruff + push =====
+  commit:
+    desc: "Format with Ruff, commit with message, and push"
+    vars:
+      MSG: '{{.CLI_ARGS}}'
+    preconditions:
+      - sh: 'test -n "{{.MSG}}"'
+        msg: 'Ошибка: Не указан комментарий. Использование: task commit -- "комментарий"'
+    cmds:
+      - "poetry run ruff format ."
+      - "poetry run ruff check . --fix"
+      - "git add ."
+      - 'git commit -m "{{.MSG}}" --no-verify'
+      - "git push"
+      - 'echo "Коммит успешно выполнен и отправлен."'
