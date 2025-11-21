@@ -8,3 +8,4 @@
 poetry run pytest -v
 ```
 # Регистрация отчетов - src/reports/register_reports.py
+![img.png](img.png)
